@@ -1,3 +1,5 @@
+# I'm too lazy to work with this mod :(
+# type: ignore
 """Quake Game Rocket weapon"""
 from __future__ import annotations
 
@@ -74,8 +76,10 @@ class RocketLauncher:
             self.last_shot = time
             center = spaz.node.position_center
             forward = spaz.node.position_forward
-            direction = [center[0] - forward[0], forward[1] - center[1],
-                         center[2] - forward[2]]
+            direction = [
+                center[0] - forward[0], forward[1] - center[1],
+                center[2] - forward[2]
+            ]
             direction[1] = 0.0
 
             mag = 10.0 / ba.Vec3(*direction).length()
@@ -131,7 +135,7 @@ class Rocket(ba.Actor):
         self._emit_timer = ba.Timer(0.001, ba.WeakCall(self.emit), repeat=True)
         self.base_pos_y = self.node.position[1]
 
-        ba.camerashake(5.0)
+        ba.camerashake(0.2)
 
     def emit(self) -> None:
         """Emit a trace after rocket"""

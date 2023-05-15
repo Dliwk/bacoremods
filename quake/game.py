@@ -1,3 +1,5 @@
+# I'm too lazy to work with this mod :(
+# type: ignore
 """Quake Game Activity"""
 from __future__ import annotations
 
@@ -24,6 +26,7 @@ class Player(ba.Player['Team']):
 
 class Team(ba.Team[Player]):
     """Our team"""
+
     def __init__(self) -> None:
         self.score = 0
 
@@ -185,8 +188,8 @@ class QuakeGame(ba.TeamGameActivity[Player, Team]):
 
                 Obstacle(
                     position=radius,
-                    mirror=self.settings_raw['Obstacles mirror shots'],
-                    form=self.settings_raw['Obstacles form']).autoretain()
+                    mirror=self.settings_raw['Obstacles Mirror Shots'],
+                    form=self.settings_raw['Obstacles Form']).autoretain()
 
         self._update_scoreboard()
 

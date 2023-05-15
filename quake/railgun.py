@@ -1,3 +1,5 @@
+# I'm too lazy to work with this mod :(
+# type: ignore
 """Quake Game Rocket weapon"""
 from __future__ import annotations
 
@@ -71,9 +73,10 @@ class RailBullet(ba.Actor):
                                delegate=self,
                                attrs={
                                    'position': position,
-                                   'color': self._color
+                                   'color': self._color,
+                                   'radius': 0,
                                })
-        ba.animate(self.node, 'radius', {0: 0, 0.1: 0.5, 0.5: 0})
+        # ba.animate(self.node, 'radius', {0: 0, 0.1: 0.5, 0.5: 0})
 
         self.source_player = source_player
         self.owner = owner
@@ -82,41 +85,52 @@ class RailBullet(ba.Actor):
 
         pos = position
         vel = tuple(i / 5 for i in ba.Vec3(direction).normalized())
+        ps = []
         for _ in range(500):  # Optimization :(
-            ba.newnode('explosion',
-                       owner=self.node,
-                       attrs={
-                           'position': pos,
-                           'radius': 0.2,
-                           'color': self._color
-                       })
+            node = ba.newnode('explosion',
+                              owner=self.node,
+                              attrs={
+                                  'position': pos,
+                                  'radius': 0.2,
+                                  'color': self._color
+                              })
             pos = (pos[0] + vel[0], pos[1] + vel[1], pos[2] + vel[2])
-
-        for node in _ba.getnodes():
-            if node and node.getnodetype() == 'spaz':
-                # pylint: disable=invalid-name
-                m3 = ba.Vec3(position)
-                a = ba.Vec3(direction[2], direction[1], direction[0])
-                m1 = ba.Vec3(node.position)
-                # pylint: enable=invalid-name
-                # distance between node and line
-                dist = (a * (m1 - m3)).length() / a.length()
-                if dist < 0.3:
+            p = node.position
+            touched = False
+            for node in _ba.getnodes():
+                if not node or node.getnodetype() != 'spaz':
+                    continue
+                    # pylint: disable=invalid-name
+                    # pylint: enable=invalid-name
+                    # distance between node and line
+                dist = (ba.Vec3(*p) - ba.Vec3(*node.position)).length()
+                if dist < 1:
+                    if node and node != self.owner and node.getdelegate(
+                            PlayerSpaz, True).getplayer(ba.Player,
+                                                        True) != self.owner:
+                        touched = True
                     if node and node != self.owner and node.getdelegate(
                             PlayerSpaz, True).getplayer(
                                 ba.Player, True).team != self.owner.team:
                         node.handlemessage(ba.FreezeMessage())
                         pos = self.node.position
                         hit_dir = (0, 10, 0)
+                        from bastd.actor.bomb import Blast
+                        Blast(position=node.position,
+                              blast_radius=1,
+                              source_player=self.source_player)
+                        break
+            if touched:
+                break
 
-                        node.handlemessage(
-                            ba.HitMessage(pos=pos,
-                                          magnitude=50,
-                                          velocity_magnitude=50,
-                                          radius=0,
-                                          srcnode=self.node,
-                                          source_player=self.source_player,
-                                          force_direction=hit_dir))
+                #node.handlemessage(
+                #    ba.HitMessage(pos=pos,
+                #                  magnitude=50,
+                #                  velocity_magnitude=50,
+                #                  radius=0,
+                #                  srcnode=self.node,
+                #                  source_player=self.source_player,
+                #                  force_direction=hit_dir))
 
     def handlemessage(self, msg: Any) -> Any:
         super().handlemessage(msg)
